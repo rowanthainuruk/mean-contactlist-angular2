@@ -1,3 +1,16 @@
+// Add this to the VERY top of the first file loaded in your app
+const apm = require('elastic-apm-node').start({
+  // Override service name from package.json
+  // Allowed characters: a-z, A-Z, 0-9, -, _, and space
+  serviceName: '',
+
+  // Use if APM Server requires a token
+  secretToken: '',
+
+  // Set custom APM Server URL (default: http://localhost:8200)
+  serverUrl: ''
+})
+
 var express = require("express");
 var bodyParser = require("body-parser");
 var mongodb = require("mongodb");
@@ -92,8 +105,9 @@ app.get("/api/contacts/:id", function(req, res) {
 app.put("/api/contacts/:id", function(req, res) {
   var updateDoc = req.body;
   delete updateDoc._id;
+  var newupdateDoc = { $set: updateDoc }
 
-  db.collection(CONTACTS_COLLECTION).updateOne({_id: new ObjectID(req.params.id)}, updateDoc, function(err, doc) {
+  db.collection(CONTACTS_COLLECTION).updateOne({_id: new ObjectID(req.params.id)}, newupdateDoc, function(err, doc) {
     if (err) {
       handleError(res, err.message, "Failed to update contact");
     } else {
